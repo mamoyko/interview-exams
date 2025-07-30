@@ -1,20 +1,17 @@
 import { input } from "@inquirer/prompts";
-import { formatName } from "./utils/index.js";
-import { searchBooksTitle, searchBooksAuthors } from "./services/api.js";
+import { searchBookWithAuthors } from "./services/api.js";
 
 async function main() {
   while (true) {
     const title = await input({ message: "Enter a book title:" });
-
     try {
-      const book = await searchBooksTitle(title);
-      await Promise.all(
-        book.authors.map(async (id) => {
-            const res = await searchBooksAuthors(id);
-            const fullName = formatName(res);
-            console.log(`Author: ${fullName}`);
-        })
-      );
+      const bookInfo = await searchBookWithAuthors(title);
+      if (!bookInfo) {
+        console.log('Book not found.');
+      } else {
+        const { authors } = bookInfo;
+        console.log(`Authors: ${authors.join(', ')}\n`);
+      }
     } catch (err) {
       console.error("Error:", err.message);
     }
